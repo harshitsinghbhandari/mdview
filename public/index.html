@@ -3,7 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Local Markdown Renderer</title>
+    <meta name="description" content="A quiet local viewer for Markdown files.">
+    <title>mdview</title>
+    <script>
+      const savedTheme = localStorage.getItem("mdview-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
+    </script>
     <link rel="stylesheet" href="/vendor/highlight/github.min.css">
     <link rel="stylesheet" href="/vendor/katex/katex.min.css">
     <link rel="stylesheet" href="/styles.css">
@@ -12,15 +18,15 @@
     <main class="shell">
       <section class="toolbar" aria-label="Markdown file controls">
         <div class="brand">
-          <span class="brand-mark" aria-hidden="true">MD</span>
+          <span class="brand-mark" aria-hidden="true">md</span>
           <div>
-            <h1>Local Markdown Renderer</h1>
-            <p>Point at a file. Edit it anywhere. Refresh this page.</p>
+            <h1>mdview</h1>
+            <p>Local Markdown viewer</p>
           </div>
         </div>
 
         <form class="file-form" id="file-form">
-          <label for="file-input">Markdown file path or URL</label>
+          <label for="file-input">File path or URL</label>
           <div class="path-row">
             <input
               id="file-input"
@@ -28,7 +34,7 @@
               type="text"
               autocomplete="off"
               spellcheck="false"
-              placeholder="/absolute/path/to/file.md or https://raw.githubusercontent.com/.../README.md"
+              placeholder="/path/to/file.md"
             >
             <button type="submit">Render</button>
           </div>
@@ -36,6 +42,7 @@
 
         <div class="actions">
           <button type="button" id="refresh-button">Refresh</button>
+          <button type="button" id="theme-button" aria-pressed="false">Dark mode</button>
           <label class="toggle">
             <input type="checkbox" id="auto-refresh">
             <span>Auto refresh</span>

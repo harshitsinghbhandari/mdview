@@ -1,9 +1,9 @@
-const toolbar = document.querySelector(".toolbar");
 const form = document.querySelector("#file-form");
 const input = document.querySelector("#file-input");
 const documentNode = document.querySelector("#document");
 const statusNode = document.querySelector("#status");
 const refreshButton = document.querySelector("#refresh-button");
+const themeButton = document.querySelector("#theme-button");
 const autoRefresh = document.querySelector("#auto-refresh");
 
 let activeFile = "";
@@ -96,15 +96,16 @@ function setAutoRefresh(enabled) {
   }
 }
 
-let lastScrollY = window.scrollY;
+function setTheme(theme, { persist = true } = {}) {
+  const isDark = theme === "dark";
+  document.documentElement.dataset.theme = isDark ? "dark" : "light";
+  themeButton.textContent = isDark ? "Light mode" : "Dark mode";
+  themeButton.setAttribute("aria-pressed", String(isDark));
 
-window.addEventListener("scroll", () => {
-  const y = window.scrollY;
-  const hide = y > lastScrollY && y > 80 && !toolbar.contains(document.activeElement);
-
-  toolbar.classList.toggle("hidden", hide);
-  lastScrollY = y;
-}, { passive: true });
+  if (persist) {
+    localStorage.setItem("mdview-theme", isDark ? "dark" : "light");
+  }
+}
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -115,11 +116,18 @@ refreshButton.addEventListener("click", () => {
   loadFile(activeFile || input.value);
 });
 
+themeButton.addEventListener("click", () => {
+  const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  setTheme(nextTheme);
+});
+
 autoRefresh.addEventListener("change", () => {
   setAutoRefresh(autoRefresh.checked);
 });
 
 async function boot() {
+  setTheme(document.documentElement.dataset.theme, { persist: false });
+
   const url = new URL(window.location.href);
   const urlFile = url.searchParams.get("file") || "";
 
