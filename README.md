@@ -138,6 +138,19 @@ The browser page stores the file path or URL in the URL. Every page load calls t
 
 There is also an `Auto refresh` toggle if you want the page to poll the file every second while an agent is editing it.
 
+## Math
+
+LaTeX math is rendered locally with KaTeX. Use single dollar signs for inline math
+and double dollar signs for display math:
+
+```markdown
+Inline math: $E = mc^2$
+
+$$
+\text{Takt time} = \frac{7200}{24} = 300
+$$
+```
+
 ## Notes
 
 - The server binds to `127.0.0.1` by default, and rejects requests whose `Host` header

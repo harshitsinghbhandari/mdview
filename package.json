@@ -39,11 +39,13 @@
     "prepublishOnly": "npm run check && npm test"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "dependencies": {
+    "@mdit/plugin-katex": "^1.1.1",
     "express": "^4.19.2",
     "highlight.js": "^11.10.0",
-    "markdown-it": "^14.1.0"
+    "katex": "^0.18.7",
+    "markdown-it": "^15.0.2"
   }
 }

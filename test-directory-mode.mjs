@@ -36,6 +36,18 @@ fs.writeFileSync(path.join(root, "README.md"), [
   "![Shot](shot.png)",
   "",
   "Archive holds `paper.pdf` and `lecture.m4a` and `nothing-here.pdf`.",
+  "",
+  "Inline math: $E = mc^2$.",
+  "",
+  "A notebook costs $5 and a textbook costs $10.",
+  "",
+  "$$",
+  "\\text{Takt time} = \\frac{7200}{24} = 300",
+  "$$",
+  "",
+  "Invalid math stays visible: $\\invalidCommand{$.",
+  "",
+  "Untrusted math stays inert: $\\htmlClass{danger}{x}$.",
   ""
 ].join("\n"));
 fs.writeFileSync(path.join(root, "notes.md"), "# Notes\n");
@@ -123,6 +135,40 @@ try {
   check("backticked non-file stays plain code", () => {
     assert.ok(html.includes("<code>nothing-here.pdf</code>"), html);
     assert.ok(!html.includes(rawLink(path.join(root, "nothing-here.pdf"))), html);
+  });
+
+  check("inline math renders with KaTeX", () => {
+    assert.match(html, /<span class="katex">.*E.*mc/s);
+  });
+
+  check("display math renders as a block", () => {
+    assert.match(html, /<p class=['"]katex-block['"]>.*Takt time/s);
+  });
+
+  check("ordinary dollar amounts remain prose", () => {
+    assert.ok(html.includes("costs $5 and a textbook costs $10"), html);
+  });
+
+  check("invalid LaTeX stays visible without breaking later content", () => {
+    assert.ok(html.includes("katex-error"), html);
+    assert.ok(html.includes("Untrusted math stays inert"), html);
+  });
+
+  check("untrusted KaTeX commands cannot add arbitrary HTML", () => {
+    assert.ok(!html.includes('class="danger"'), html);
+    assert.ok(html.includes("htmlClass"), html);
+  });
+
+  const katexStyles = await fetch(`${origin}/vendor/katex/katex.min.css`);
+  check("KaTeX styles are served locally", () => {
+    assert.equal(katexStyles.status, 200);
+    assert.match(katexStyles.headers.get("content-type") || "", /^text\/css/);
+  });
+
+  fs.appendFileSync(path.join(root, "README.md"), "\nLive math: $a^2 + b^2 = c^2$.\n");
+  const refreshed = await (await render(path.join(root, "README.md"))).json();
+  check("math rerenders after the source file changes", () => {
+    assert.match(refreshed.html, /<span class="katex">.*a.*b.*c/s);
   });
 
   const courseDir = await (await render(path.join(root, "CS-101"))).json();

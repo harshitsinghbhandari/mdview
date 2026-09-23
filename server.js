@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, URL } from "node:url";
+import { katex } from "@mdit/plugin-katex";
 import MarkdownIt from "markdown-it";
 import hljs from "highlight.js";
 
@@ -163,6 +164,12 @@ function createMarkdownRenderer({ html }) {
     }
   });
 
+  renderer.use(katex, {
+    delimiters: "dollars",
+    throwOnError: false,
+    trust: false
+  });
+
   renderer.renderer.rules.link_open = (tokens, index, options, env, self) => {
     const token = tokens[index];
     const hrefIndex = token.attrIndex("href");
@@ -219,6 +226,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/vendor/highlight", express.static(path.join(__dirname, "node_modules/highlight.js/styles")));
+app.use("/vendor/katex", express.static(path.join(__dirname, "node_modules/katex/dist")));
 app.use(express.static(path.join(__dirname, "public")));
 
 function isHttpUrl(value) {
